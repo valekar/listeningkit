@@ -1,0 +1,24 @@
+{
+  "name": "@openmagpie/acp-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "openmagpie-acp-bridge": "./src/cli.mjs"
+  },
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test test/*.test.mjs",
+    "provider": "node scripts/provider.mjs",
+    "service:install": "node scripts/service.mjs install",
+    "service:remove": "node scripts/service.mjs remove"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@agentclientprotocol/claude-agent-acp": "0.81.1",
+    "@agentclientprotocol/codex-acp": "1.13.1",
+    "@agentclientprotocol/sdk": "1.5.0"
+  }
+}

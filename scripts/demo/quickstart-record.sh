@@ -61,18 +61,18 @@ fi
 # pre-fill its URL prompt with the FIRST of these that answers, and the tape
 # accepts that default, so THAT endpoint must list the model the tape types.
 found=""
-for base in http://localhost:11434/v1 http://localhost:8000/v1 http://localhost:1234/v1 http://localhost:8080/v1; do
+for base in http://localhost:8000/v1 http://localhost:1234/v1 http://localhost:8080/v1; do
     if curl -fsS -m 1 "$base/models" >/dev/null 2>&1; then
         found="$base"
         break
     fi
 done
 if [ -z "$found" ]; then
-    echo "error: no local OpenAI-compatible /v1 endpoint answering; the take needs one to score (e.g. ollama serve)." >&2
+    echo "error: no local OpenAI-compatible /v1 endpoint answering; start the demo model server before recording." >&2
     exit 1
 fi
 if ! curl -fsS -m 5 "$found/models" | grep -qF "$MODEL"; then
-    echo "error: $found does not list $MODEL, which the tape types at the model prompt (e.g. ollama pull $MODEL)." >&2
+    echo "error: $found does not list $MODEL, which the tape types at the model prompt." >&2
     exit 1
 fi
 

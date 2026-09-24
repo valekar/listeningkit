@@ -1,7 +1,7 @@
 """OpenAICompatEngine: relevance scoring against any OpenAI-compatible LLM server,
 driven by the OFFICIAL `openai` client pointed at the backend's `/v1` base URL.
 
-Every backend (Ollama's `/v1`, vLLM, OpenAI, llama.cpp's server, LM Studio, hosted
+Every backend (the local ACP bridge, vLLM, OpenAI, llama.cpp's server, LM Studio, hosted
 providers) documents the same integration: construct `OpenAI(base_url=...,
 api_key=...)` and call it. So we consume them THROUGH that client - it owns
 endpoint construction (`/chat/completions`, `/models`), request/response shapes,

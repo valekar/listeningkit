@@ -436,21 +436,17 @@ JOB_LOCK_TIMEOUT_SECONDS = int(os.environ.get("JOB_LOCK_TIMEOUT_SECONDS", "86400
 # Relevance engine (the LLM that scores semantic-filter relevance). The engine
 # talks to any backend via the OpenAI `/v1` API, so all it needs is an endpoint
 # and (maybe) a key - no per-backend "kind" config. ENGINE_BASE_URL is the
-# OpenAI-compatible `/v1` base URL (Ollama, vLLM, OpenAI, llama.cpp, LM Studio,
+# OpenAI-compatible `/v1` base URL (the ACP bridge, vLLM, OpenAI, llama.cpp, LM Studio,
 # ...) - required, fail fast at startup if unset (it has a sensible default in
 # .env.example). ENGINE_API_KEY is sent as a Bearer token (hosted providers need
 # it; local servers ignore it).
 try:
     ENGINE_BASE_URL = os.environ["ENGINE_BASE_URL"]
 except KeyError as exc:
-    # Named explicitly (not a raw KeyError) so an upgrade from the pre-rename
-    # config gets the fix, not a cryptic traceback: ENGINE_BASE_URL/ENGINE_MODEL
-    # replaced OLLAMA_URL/OLLAMA_DEFAULT_MODEL.
     raise ImproperlyConfigured(
-        "ENGINE_BASE_URL is not set. The relevance engine is now any OpenAI-compatible "
-        "/v1 endpoint, and ENGINE_BASE_URL (+ optional ENGINE_MODEL) replaces the old "
-        "OLLAMA_URL / OLLAMA_DEFAULT_MODEL. Set it in apps/core/.env, e.g. "
-        "ENGINE_BASE_URL=http://host.docker.internal:11434/v1"
+        "ENGINE_BASE_URL is not set. Set an OpenAI-compatible /v1 endpoint in "
+        "apps/core/.env, e.g. ENGINE_BASE_URL=http://host.docker.internal:3182/v1 "
+        "for the local Codex/Claude ACP bridge"
     ) from exc
 ENGINE_API_KEY = os.environ.get("ENGINE_API_KEY", "")
 # ENGINE_MODEL is the model to judge with (the fallback when an action leaves

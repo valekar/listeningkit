@@ -55,7 +55,7 @@ def _classify(base_url: str, api_key: str, timeout: float) -> tuple[list[str], s
         return [], f"{base_url} did not return the expected /v1/models JSON"
     models = [m["id"] for m in data if isinstance(m, dict) and "id" in m]
     if not models:
-        return [], f"reached {base_url}, but it lists no models - pull one, e.g. `ollama pull qwen2.5:7b`"
+        return [], f"reached {base_url}, but it lists no models - check that the provider is configured and authenticated"
     return models, None
 
 

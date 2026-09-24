@@ -17,8 +17,8 @@
 # resolves the `engine` package (callers are cd'd to repo root). Stderr is parsed
 # for the probe's `probe: <reason>` diagnostic line (emitted on any failure) and
 # stashed in the global ENGINE_PROBE_REASON so the caller can surface WHY the
-# probe came back empty - "no LLM reached" alone left a tester with a healthy
-# `ollama serve` but no model pulled with no way to tell. uv's own chatter (sync
+# probe came back empty - "no LLM reached" alone can hide an authentication
+# or model-configuration failure. uv's own chatter (sync
 # progress, warnings) is swallowed; it isn't actionable here.
 engine_probe_models() {
     ENGINE_PROBE_REASON=""
@@ -38,7 +38,11 @@ engine_probe_models() {
 # setup default. Needs curl; silent no-op without it.
 engine_find_local() {
     command -v curl >/dev/null 2>&1 || return 0
-    for base in http://localhost:11434/v1 http://localhost:8000/v1 http://localhost:1234/v1 http://localhost:8080/v1; do
+    if curl -fsS -m 1 http://localhost:3182/healthz >/dev/null 2>&1; then
+        printf '%s' 'http://localhost:3182/v1'
+        return 0
+    fi
+    for base in http://localhost:8000/v1 http://localhost:1234/v1 http://localhost:8080/v1; do
         if curl -fsS -m 1 "$base/models" >/dev/null 2>&1; then
             printf '%s' "$base"
             return 0
@@ -127,9 +131,9 @@ configure_engine() {
     if [ -n "$_found_local" ]; then
         printf '%s\n' "  Found a local server at ${_KEY}${_found_local}${_OFF}; press Enter to use it."
     else
-        printf '%s\n' "  No local server answered on the usual ports (Ollama 11434, vLLM 8000, LM Studio 1234, llama.cpp 8080),"
+        printf '%s\n' "  No local server answered on the usual ports (ACP bridge 3182, vLLM 8000, LM Studio 1234, llama.cpp 8080),"
         printf '%s\n' "  so the default below is only a suggestion. Your options:"
-        printf '%s\n' "    - run one locally: install Ollama (${_KEY}https://ollama.com/download${_OFF}), run ${_KEY}ollama pull qwen2.5:7b${_OFF}, then press Enter here"
+        printf '%s\n' "    - set up the local Codex/Claude ACP bridge: ${_KEY}integrations/acp-bridge/README.md${_OFF}"
         printf '%s\n' "    - use a hosted API: paste its base URL, e.g. ${_KEY}https://api.openai.com/v1${_OFF}, and give your API key at the key prompt"
         printf '%s\n' "    - type ${_KEY}skip${_OFF} to set this up later (the stack still boots; nothing gets scored until an LLM is configured)"
     fi
@@ -195,7 +199,7 @@ configure_engine() {
         _auth="${_auth%%/*}"
         case "$_auth" in
             *:*) ;;
-            *) printf '      - port: add it (e.g. :11434 Ollama, :8000 vLLM, :1234 LM Studio, :8080 llama.cpp)\n' > /dev/tty ;;
+            *) printf '      - port: add it (e.g. :3182 ACP bridge, :8000 vLLM, :1234 LM Studio, :8080 llama.cpp)\n' > /dev/tty ;;
         esac
         case "$_url" in
             */v1 | */v1/) ;;
@@ -208,8 +212,8 @@ configure_engine() {
         # intro showed only "Found a local server", so this block is the one
         # place the options can appear (the found-then-died case).
         if [ -n "$_found_local" ]; then
-            printf '      - no LLM running yet? quickest local start: install Ollama (%s), then: %s\n' \
-                "${_KEY}https://ollama.com/download${_OFF}" "${_KEY}ollama pull qwen2.5:7b${_OFF}" > /dev/tty
+            printf '      - local ACP bridge setup: %s\n' \
+                "${_KEY}integrations/acp-bridge/README.md${_OFF}" > /dev/tty
             printf '      - or use a hosted /v1, e.g. %s with your API key\n' \
                 "${_KEY}https://api.openai.com/v1${_OFF}" > /dev/tty
         else

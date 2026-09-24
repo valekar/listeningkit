@@ -29,7 +29,7 @@
 # throttling. The connector backs off and retries (an on-screen INFO line, not a
 # warning), but back-to-back takes still record slower scoring; space them out.
 #
-# The model beat types qwen2.5:7b (the README's suggested model); the recorder
+# The model beat types qwen2.5:7b (the demo model); the recorder
 # verifies it is on the detected endpoint first, since a typed id that is not in
 # the list re-prompts and derails the take.
 

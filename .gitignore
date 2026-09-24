@@ -84,3 +84,6 @@ cli/.venv/
 
 # local-only: override docker-compose ports when the host ports are taken (see docker-compose.override.yml)
 docker-compose.override.yml
+
+# Host ACP bridge service logs
+/integrations/acp-bridge/.logs/
